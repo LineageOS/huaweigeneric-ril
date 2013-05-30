@@ -1067,15 +1067,15 @@ static int dial_at_modem(const char* cmd, int skipanswerwait)
 
     // disable echo on serial lines and set a 10 second timeout
     if ( isatty( fd ) ) {
-        struct termios  ios;
-        tcgetattr( fd, &ios );
-        ios.c_lflag = 0;  /* disable ECHO, ICANON, etc... */
-        ios.c_oflag &= (~ONLCR); /* Stop \n -> \r\n translation on output */
-        ios.c_iflag &= (~(ICRNL | INLCR)); /* Stop \r -> \n & \n -> \r translation on input */
-        ios.c_iflag |= (IGNCR | IXOFF);  /* Ignore \r & XON/XOFF on input */
-		ios.c_cc[VTIME] = 10; /* Timeout in 1/10 of a second */
-		ios.c_cc[VMIN] = 0; /* Minimum number of chars returned: 0*/ 
-        tcsetattr( fd, TCSANOW, &ios );
+	struct termios  ios;
+	tcgetattr( fd, &ios );
+	ios.c_cflag = B115200 | CRTSCTS | CS8 | CLOCAL | CREAD | O_NDELAY;
+	ios.c_lflag = 0;  /* disable ECHO, ICANON, etc... */
+	ios.c_oflag = 0;
+	ios.c_iflag = IGNPAR;
+	ios.c_cc[VTIME] = 10; /* Timeout in 1/10 of a second */
+	ios.c_cc[VMIN] = 0; /* Minimum number of chars returned: 0*/
+	tcsetattr( fd, TCSANOW, &ios );
     }
 	
 	// Discard all pending data */
